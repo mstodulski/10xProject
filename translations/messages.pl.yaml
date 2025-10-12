@@ -1,0 +1,7 @@
+user:
+    user_is_not_active: 'Użytkownik jest nieaktywny. Skonsultuj to z innym doradcą'
+    login: 'Logowanie'
+    log_in: 'Zaloguj'
+    login_panel: 'Panel logowania'
+    user: 'Nazwa użytkownika'
+    password: 'Hasło'

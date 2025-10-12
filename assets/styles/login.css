@@ -1,0 +1,23 @@
+.login-box {
+    border-radius: 10px;
+    background-color: rgba(39, 78, 116, 0.6);
+}
+
+.login-header {
+    text-align: center;
+    color: rgb(80, 195, 255);
+    font-size: 24pt;
+    padding-bottom: 20px;
+}
+
+.login-page-header {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.footer-section {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.bpflow-top-logo {
+    max-height: 30px;
+}
