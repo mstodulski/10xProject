@@ -1,0 +1,31 @@
+inspection:
+  start_datetime:
+    not_null: 'Data i godzina rozpoczęcia jest wymagana.'
+    quarter_hour: 'Oględziny mogą rozpoczynać się tylko o pełnej godzinie lub 15, 30, 45 minut po pełnej godzinie.'
+    working_hours: 'Oględziny mogą rozpoczynać się tylko w godzinach pracy ({{ start }}:00 - {{ end }}:00).'
+    not_weekend: 'Oględziny nie mogą być zaplanowane na weekend (sobota lub niedziela).'
+    future: 'Data rozpoczęcia oględzin musi być w przyszłości.'
+    max_two_weeks: 'Można zaplanować oględziny maksymalnie {{ weeks }} tygodnie do przodu.'
+  end_datetime:
+    working_hours: 'Oględziny muszą zakończyć się przed {{ end }}:00.'
+  vehicle_make:
+    not_blank: 'Marka pojazdu jest wymagana.'
+    max_length: 'Marka pojazdu nie może być dłuższa niż {{ limit }} znaków.'
+  vehicle_model:
+    not_blank: 'Model pojazdu jest wymagany.'
+    max_length: 'Model pojazdu nie może być dłuższy niż {{ limit }} znaków.'
+  license_plate:
+    not_blank: 'Numer rejestracyjny jest wymagany.'
+    max_length: 'Numer rejestracyjny nie może być dłuższy niż {{ limit }} znaków.'
+  client_name:
+    not_blank: 'Imię i nazwisko klienta jest wymagane.'
+    max_length: 'Imię i nazwisko klienta nie może być dłuższe niż {{ limit }} znaków.'
+  phone_number:
+    not_blank: 'Numer telefonu jest wymagany.'
+    min_length: 'Numer telefonu musi mieć co najmniej {{ limit }} znaków.'
+    max_length: 'Numer telefonu nie może być dłuższy niż {{ limit }} znaków.'
+    invalid_format: 'Numer telefonu może zawierać tylko cyfry, spacje i znak "+".'
+  created_by_user:
+    not_null: 'Konsultant tworzący oględziny jest wymagany.'
+  conflict:
+    exists: 'Ten termin koliduje z innymi oględzinami. Należy uwzględnić 15-minutową przerwę między oględzinami.'

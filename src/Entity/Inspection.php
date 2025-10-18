@@ -3,14 +3,18 @@
 namespace App\Entity;
 
 use App\Repository\InspectionRepository;
+use App\Validator as AppAssert;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: InspectionRepository::class)]
 #[ORM\Table(name: 'inspections')]
-#[ORM\Index(columns: ['start_datetime'], name: 'idx_start_datetime')]
-#[ORM\Index(columns: ['end_datetime'], name: 'idx_end_datetime')]
-#[ORM\Index(columns: ['created_by_user_id'], name: 'idx_created_by_user_id')]
+#[ORM\Index(name: 'idx_start_datetime', columns: ['start_datetime'])]
+#[ORM\Index(name: 'idx_end_datetime', columns: ['end_datetime'])]
+#[ORM\Index(name: 'idx_created_by_user_id', columns: ['created_by_user_id'])]
+#[AppAssert\WorkingHours]
+#[AppAssert\NoInspectionConflict]
 class Inspection
 {
     #[ORM\Id]
@@ -19,28 +23,65 @@ class Inspection
     private ?int $id = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Assert\NotNull(message: 'inspection.start_datetime.not_null')]
+    #[AppAssert\QuarterHourStart]
+    #[AppAssert\NotWeekend]
+    #[AppAssert\FutureDate]
+    #[AppAssert\MaxTwoWeeksAhead]
     private DateTimeImmutable $startDatetime;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $endDatetime;
 
     #[ORM\Column(type: 'string', length: 64)]
+    #[Assert\NotBlank(message: 'inspection.vehicle_make.not_blank')]
+    #[Assert\Length(
+        max: 64,
+        maxMessage: 'inspection.vehicle_make.max_length'
+    )]
     private string $vehicleMake;
 
     #[ORM\Column(type: 'string', length: 64)]
+    #[Assert\NotBlank(message: 'inspection.vehicle_model.not_blank')]
+    #[Assert\Length(
+        max: 64,
+        maxMessage: 'inspection.vehicle_model.max_length'
+    )]
     private string $vehicleModel;
 
     #[ORM\Column(type: 'string', length: 20)]
+    #[Assert\NotBlank(message: 'inspection.license_plate.not_blank')]
+    #[Assert\Length(
+        max: 20,
+        maxMessage: 'inspection.license_plate.max_length'
+    )]
     private string $licensePlate;
 
     #[ORM\Column(type: 'string', length: 64)]
+    #[Assert\NotBlank(message: 'inspection.client_name.not_blank')]
+    #[Assert\Length(
+        max: 64,
+        maxMessage: 'inspection.client_name.max_length'
+    )]
     private string $clientName;
 
     #[ORM\Column(type: 'string', length: 20)]
+    #[Assert\NotBlank(message: 'inspection.phone_number.not_blank')]
+    #[Assert\Length(
+        min: 8,
+        max: 20,
+        minMessage: 'inspection.phone_number.min_length',
+        maxMessage: 'inspection.phone_number.max_length'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[\d\s\+]+$/',
+        message: 'inspection.phone_number.invalid_format'
+    )]
     private string $phoneNumber;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'created_by_user_id', nullable: false)]
+    #[Assert\NotNull(message: 'inspection.created_by_user.not_null')]
     private User $createdByUser;
 
     #[ORM\Column(type: 'datetime_immutable')]
