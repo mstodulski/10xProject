@@ -5,3 +5,12 @@ user:
     login_panel: 'Panel logowania'
     user: 'Nazwa użytkownika'
     password: 'Hasło'
+    users: 'Użytkownicy'
+calendar:
+    calendar: 'Kalendarz'
+    inspection_calendar: 'Kalendarz oględzin'
+    inspection_calendar_description: 'Zarządzaj terminami oględzin pojazdów powypadkowych'
+    add_new_inspection: 'Dodaj nowe oględziny'
+ui:
+    inspection_system: 'System Oględzin'
+    logout: 'Wyloguj'

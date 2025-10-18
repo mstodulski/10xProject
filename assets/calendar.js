@@ -16,6 +16,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
+import plLocale from '@fullcalendar/core/locales/pl';
 
 // Note: FullCalendar v6 automatically injects CSS - no CSS imports needed!
 
@@ -48,7 +49,8 @@ document.addEventListener('DOMContentLoaded', function() {
         firstDay: 1,
 
         // Locale (Polish)
-        locale: 'pl',
+        locale: plLocale,
+        locales: [plLocale],
 
         // Time settings
         slotMinTime: '07:00:00',  // Start at 07:00

@@ -25,4 +25,10 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
+    'jquery/src/core' => [
+        'version' => '3.7.1',
+    ],
+    'jquery' => [
+        'version' => '3.7.1',
+    ],
 ];

@@ -10,7 +10,17 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // any CSS you import will output into a single css file (app.css in this case)
-import './styles/app.css';
+import './styles/app.scss';
 
 // Import FullCalendar
 import './calendar.js';
+
+import $ from 'jquery';
+
+$( document ).ready(function()
+{
+    $('#addInspectionBtn').on('click', function () {
+        // TODO: Implementacja modala do dodawania oględzin
+        alert('Tutaj otworzy się formularz dodawania nowych oględzin');
+    });
+});

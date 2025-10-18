@@ -132,6 +132,7 @@ Key services in `src/Service/`:
 - Always use subdirectories in the translations directory to create translation files for each controller.
 - Always use subdirectories in the templates directory to create templates for individual controllers.
 - In templates, always extend the /templates/base.html.twig template (except templates loaded by ajax).
+- Replace qualifiers with an import
 
 ## Who you are
 

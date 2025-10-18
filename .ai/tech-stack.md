@@ -118,7 +118,7 @@ Stack technologiczny zapewnia solidne podstawy bezpieczeństwa, które są wysta
 
 2. **Frontend:** Bootstrap + FullCalendar (bez zmian)
     * Sprawdzone rozwiązania idealne dla tego typu aplikacji
-
+    
 3. **Hosting:** Chmura (bez zmian, ale warto doprecyzować dostawcę)
     * Rozważyć prostsze rozwiązania PaaS (np. Heroku, DigitalOcean App Platform)
 
@@ -138,3 +138,6 @@ Proponowany stack technologiczny jest solidny i odpowiedzialny, ale prawdopodobn
 Zaproponowane alternatywy (szczególnie Laravel) mogą pozwolić na szybsze dostarczenie funkcjonalnego MVP przy zachowaniu możliwości rozwoju i skalowalności w przyszłości. Dodatkowo, warto rozważyć wykorzystanie bardziej zautomatyzowanych rozwiązań chmurowych, które zmniejszą nakład pracy DevOps na etapie MVP.
 
 Ostateczna decyzja powinna uwzględnić doświadczenie zespołu deweloperskiego - jeśli są ekspertami w Symfony, korzyści z używania znanej technologii mogą przeważyć nad potencjalnie szybszym rozwojem w innym frameworku.
+
+(human) Pomimo umiarkowanie pozytywnej oceny zapadła decyzja o użyciu proponowanego stacka mimo wszystko, ze względu na 
+doświadczenie zespołu developerskiego

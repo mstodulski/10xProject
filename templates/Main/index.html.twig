@@ -1,4 +1,59 @@
 {% extends 'base.html.twig' %}
+
+{% block title %}{{ 'calendar.inspection_calendar'|trans }}{% endblock %}
+
 {% block body %}
-test
+    {# Navigation Bar #}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ path('index') }}">
+                <strong>{{ 'ui.inspection_system'|trans }}</strong>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">{{ 'calendar.calendar'|trans }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">{{ 'user.users'|trans }}</a>
+                    </li>
+                </ul>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3">
+                        <i class="fas fa-user-circle"></i> {{ app.user.name }}
+                    </span>
+                    <a class="nav-link" href="{{ path('logout') }}">
+                        <i class="fas fa-sign-out-alt"></i> {{ 'ui.logout'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {# Main Content #}
+    <div class="container-fluid container-lg mt-3 mt-md-4 px-2 px-md-3">
+        {# Page Header #}
+        <div class="row mb-3 mb-md-4">
+            <div class="col-12 col-md-8">
+                <h1 class="h3 h2-md mb-0">{{ 'calendar.inspection_calendar'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'calendar.inspection_calendar_description'|trans }}</p>
+            </div>
+            <div class="col-12 col-md-4 text-start text-md-end mt-3 mt-md-0">
+                <button type="button" class="btn btn-primary btn-lg w-100 w-md-auto" id="addInspectionBtn">
+                    <i class="fas fa-plus-circle"></i> {{ 'calendar.add_new_inspection'|trans }}
+                </button>
+            </div>
+        </div>
+
+        {# Calendar Card #}
+        <div class="card shadow-sm">
+            <div class="card-body p-2 p-md-3">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

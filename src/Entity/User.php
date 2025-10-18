@@ -39,8 +39,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $updatedAt = null;
 
-    private $login = 'testtest';
-
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
