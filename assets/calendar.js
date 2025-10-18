@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         // Load events from server
-        events: '/api/inspections', // TODO: Implement this endpoint
+        events: '/inspections', // TODO: Implement this endpoint
 
         // Responsive: change view on window resize
         windowResize: function(view) {
