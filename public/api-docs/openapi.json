@@ -1,0 +1,686 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "System Zarządzania Oględzinami Pojazdów Powypadkowych - API",
+    "description": "REST API dla systemu zarządzania harmonogramem oględzin pojazdów powypadkowych. System umożliwia konsultantom rezerwowanie terminów oględzin dla klientów oraz inspektorowi przeglądanie harmonogramu.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost",
+      "description": "Serwer deweloperski"
+    },
+    {
+      "url": "https://production-url.com",
+      "description": "Serwer produkcyjny"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Endpointy związane z autoryzacją użytkownika"
+    },
+    {
+      "name": "Inspections",
+      "description": "Endpointy związane z zarządzaniem oględzinami"
+    }
+  ],
+  "paths": {
+    "/api/authorize": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Logowanie użytkownika",
+        "description": "Autoryzuje użytkownika i zwraca identyfikator sesji (PHPSESSID), który należy używać w kolejnych zapytaniach do API.",
+        "operationId": "authorizeUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthorizeRequest"
+              },
+              "examples": {
+                "consultant": {
+                  "summary": "Logowanie jako konsultant",
+                  "value": {
+                    "username": "consultant1",
+                    "password": "password123"
+                  }
+                },
+                "inspector": {
+                  "summary": "Logowanie jako inspektor",
+                  "value": {
+                    "username": "inspector1",
+                    "password": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Zalogowano pomyślnie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizeSuccessResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Zalogowano pomyślnie",
+                  "sessionId": "a1b2c3d4e5f6g7h8i9j0",
+                  "user": {
+                    "id": 1,
+                    "username": "consultant1",
+                    "name": "Jan Kowalski",
+                    "roles": ["ROLE_USER", "ROLE_CONSULTANT"]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Błędne dane wejściowe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingFields": {
+                    "summary": "Brak wymaganych pól",
+                    "value": {
+                      "success": false,
+                      "error": "Nieprawidłowe dane. Wymagane pola: username, password"
+                    }
+                  },
+                  "emptyFields": {
+                    "summary": "Puste pola",
+                    "value": {
+                      "success": false,
+                      "error": "Nazwa użytkownika i hasło nie mogą być puste"
+                    }
+                  },
+                  "invalidJson": {
+                    "summary": "Nieprawidłowy format JSON",
+                    "value": {
+                      "success": false,
+                      "error": "Nieprawidłowy format danych JSON"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Nieprawidłowe dane logowania lub nieaktywne konto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "invalidCredentials": {
+                    "summary": "Nieprawidłowe dane logowania",
+                    "value": {
+                      "success": false,
+                      "error": "Nieprawidłowa nazwa użytkownika lub hasło"
+                    }
+                  },
+                  "inactiveUser": {
+                    "summary": "Nieaktywne konto użytkownika",
+                    "value": {
+                      "success": false,
+                      "error": "Użytkownik jest nieaktywny"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Błąd serwera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Wystąpił błąd serwera"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Wylogowanie użytkownika",
+        "description": "Wylogowuje użytkownika i unieważnia sesję. Po wylogowaniu identyfikator sesji (PHPSESSID) przestaje być ważny.",
+        "operationId": "logoutUser",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wylogowano pomyślnie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutSuccessResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": "Wylogowano pomyślnie"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Użytkownik nie jest zalogowany lub sesja wygasła",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notAuthenticated": {
+                    "summary": "Brak autentykacji",
+                    "value": {
+                      "success": false,
+                      "error": "Użytkownik nie jest zalogowany"
+                    }
+                  },
+                  "sessionExpired": {
+                    "summary": "Sesja wygasła",
+                    "value": {
+                      "success": false,
+                      "error": "Wymagane uwierzytelnienie"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Błąd serwera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Wystąpił błąd serwera"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inspections": {
+      "get": {
+        "tags": ["Inspections"],
+        "summary": "Pobieranie listy oględzin",
+        "description": "Zwraca listę oględzin z możliwością filtrowania według zakresu dat, użytkownika, który utworzył oględziny, oraz paginacji.",
+        "operationId": "getInspections",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Data początkowa zakresu (format: YYYY-MM-DD)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "example": "2025-10-01"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "Data końcowa zakresu (format: YYYY-MM-DD)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "example": "2025-10-31"
+            }
+          },
+          {
+            "name": "createdByUserId",
+            "in": "query",
+            "description": "ID użytkownika, który utworzył oględziny (filtrowanie po konsultancie)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "example": 11
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Numer strony (domyślnie: 1)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Liczba wyników na stronę (zakres: 1-100, domyślnie: 50)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50,
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista oględzin została pomyślnie pobrana",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspectionsListResponse"
+                },
+                "example": {
+                  "success": true,
+                  "data": [
+                    {
+                      "id": 1,
+                      "startDatetime": "2025-10-15T10:00:00+00:00",
+                      "endDatetime": "2025-10-15T10:30:00+00:00",
+                      "vehicleMake": "Toyota",
+                      "vehicleModel": "Corolla",
+                      "licensePlate": "WA12345",
+                      "clientName": "Jan Kowalski",
+                      "phoneNumber": "123456789",
+                      "createdByUserId": 11,
+                      "createdByUserName": "Konsultant Jan",
+                      "createdAt": "2025-10-10T08:30:00+00:00"
+                    },
+                    {
+                      "id": 2,
+                      "startDatetime": "2025-10-15T11:00:00+00:00",
+                      "endDatetime": "2025-10-15T11:30:00+00:00",
+                      "vehicleMake": "BMW",
+                      "vehicleModel": "X5",
+                      "licensePlate": "WW98765",
+                      "clientName": "Anna Nowak",
+                      "phoneNumber": "987654321",
+                      "createdByUserId": 11,
+                      "createdByUserName": "Konsultant Jan",
+                      "createdAt": "2025-10-11T14:20:00+00:00"
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 20,
+                    "total": 45,
+                    "totalPages": 3
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Błędne parametry zapytania",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                },
+                "examples": {
+                  "invalidDateFormat": {
+                    "summary": "Nieprawidłowy format daty",
+                    "value": {
+                      "success": false,
+                      "errors": {
+                        "startDate": "Nieprawidłowy format daty. Użyj formatu YYYY-MM-DD"
+                      }
+                    }
+                  },
+                  "dateRangeError": {
+                    "summary": "Data początkowa późniejsza niż końcowa",
+                    "value": {
+                      "success": false,
+                      "error": "Data początkowa nie może być późniejsza niż data końcowa"
+                    }
+                  },
+                  "invalidLimit": {
+                    "summary": "Nieprawidłowa wartość limit",
+                    "value": {
+                      "success": false,
+                      "errors": {
+                        "limit": "Parametr limit musi być w zakresie od 1 do 100"
+                      }
+                    }
+                  },
+                  "userNotFound": {
+                    "summary": "Nieistniejący użytkownik",
+                    "value": {
+                      "success": false,
+                      "error": "Użytkownik o podanym ID nie istnieje"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Brak autentykacji lub sesja wygasła",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Wymagane uwierzytelnienie"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Błąd serwera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "error": "Wystąpił błąd serwera"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "PHPSESSID",
+        "description": "Identyfikator sesji otrzymany po pomyślnym zalogowaniu przez endpoint /api/authorize. Należy przekazać go w cookie PHPSESSID w kolejnych zapytaniach."
+      }
+    },
+    "schemas": {
+      "AuthorizeRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Nazwa użytkownika (login)",
+            "minLength": 1,
+            "maxLength": 64,
+            "example": "consultant1"
+          },
+          "password": {
+            "type": "string",
+            "description": "Hasło użytkownika",
+            "minLength": 1,
+            "format": "password",
+            "example": "password123"
+          }
+        }
+      },
+      "AuthorizeSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Status operacji",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Komunikat sukcesu",
+            "example": "Zalogowano pomyślnie"
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Identyfikator sesji (PHPSESSID) do wykorzystania w kolejnych zapytaniach",
+            "example": "a1b2c3d4e5f6g7h8i9j0"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "LogoutSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Status operacji",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Komunikat sukcesu",
+            "example": "Wylogowano pomyślnie"
+          }
+        }
+      },
+      "InspectionsListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Status operacji",
+            "example": true
+          },
+          "data": {
+            "type": "array",
+            "description": "Lista oględzin",
+            "items": {
+              "$ref": "#/components/schemas/Inspection"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unikalny identyfikator użytkownika",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "description": "Nazwa użytkownika (login)",
+            "example": "consultant1"
+          },
+          "name": {
+            "type": "string",
+            "description": "Imię i nazwisko użytkownika",
+            "example": "Jan Kowalski"
+          },
+          "roles": {
+            "type": "array",
+            "description": "Role użytkownika w systemie",
+            "items": {
+              "type": "string",
+              "enum": ["ROLE_USER", "ROLE_CONSULTANT", "ROLE_INSPECTOR"]
+            },
+            "example": ["ROLE_USER", "ROLE_CONSULTANT"]
+          }
+        }
+      },
+      "Inspection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unikalny identyfikator oględzin",
+            "example": 1
+          },
+          "startDatetime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data i godzina rozpoczęcia oględzin (ISO 8601)",
+            "example": "2025-10-15T10:00:00+00:00"
+          },
+          "endDatetime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data i godzina zakończenia oględzin (ISO 8601)",
+            "example": "2025-10-15T10:30:00+00:00"
+          },
+          "vehicleMake": {
+            "type": "string",
+            "description": "Marka pojazdu",
+            "maxLength": 64,
+            "example": "Toyota"
+          },
+          "vehicleModel": {
+            "type": "string",
+            "description": "Model pojazdu",
+            "maxLength": 64,
+            "example": "Corolla"
+          },
+          "licensePlate": {
+            "type": "string",
+            "description": "Numer rejestracyjny pojazdu",
+            "maxLength": 20,
+            "example": "WA12345"
+          },
+          "clientName": {
+            "type": "string",
+            "description": "Imię i nazwisko klienta",
+            "maxLength": 64,
+            "example": "Jan Kowalski"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "Numer telefonu klienta",
+            "maxLength": 20,
+            "example": "123456789"
+          },
+          "createdByUserId": {
+            "type": "integer",
+            "description": "ID konsultanta, który utworzył termin oględzin",
+            "example": 11
+          },
+          "createdByUserName": {
+            "type": "string",
+            "description": "Imię i nazwisko konsultanta, który utworzył termin",
+            "example": "Konsultant Jan"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data utworzenia rekordu (ISO 8601)",
+            "example": "2025-10-10T08:30:00+00:00"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Bieżący numer strony",
+            "minimum": 1,
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Liczba wyników na stronie",
+            "minimum": 1,
+            "maximum": 100,
+            "example": 20
+          },
+          "total": {
+            "type": "integer",
+            "description": "Całkowita liczba wyników",
+            "minimum": 0,
+            "example": 45
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Całkowita liczba stron",
+            "minimum": 0,
+            "example": 3
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Status operacji (zawsze false dla błędów)",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "description": "Komunikat błędu",
+            "example": "Wystąpił błąd"
+          }
+        }
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Status operacji (zawsze false dla błędów)",
+            "example": false
+          },
+          "errors": {
+            "type": "object",
+            "description": "Mapa błędów walidacji (klucz: nazwa pola, wartość: komunikat błędu)",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "startDate": "Nieprawidłowy format daty. Użyj formatu YYYY-MM-DD",
+              "limit": "Parametr limit musi być w zakresie od 1 do 100"
+            }
+          },
+          "error": {
+            "type": "string",
+            "description": "Pojedynczy komunikat błędu (alternatywa dla errors)",
+            "example": "Nieprawidłowe parametry zapytania"
+          }
+        }
+      }
+    }
+  }
+}

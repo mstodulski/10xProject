@@ -44,6 +44,7 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/authorize$, roles: PUBLIC_ACCESS, methods: [POST] }
         - { path: ^/api/inspections$, roles: ROLE_USER, methods: [GET] }
         - { path: ^/api, roles: ROLE_USER }
         - { path: ^/, roles: [ ROLE_USER, ROLE_ADMIN ] }
