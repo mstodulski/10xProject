@@ -278,4 +278,62 @@ class InspectionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * Find inspections with filters and pagination
+     *
+     * @return array{inspections: Inspection[], total: int}
+     */
+    public function findWithFiltersAndPagination(
+        ?DateTimeImmutable $startDate,
+        ?DateTimeImmutable $endDate,
+        ?int $createdByUserId,
+        int $page,
+        int $limit
+    ): array {
+        $offset = ($page - 1) * $limit;
+
+        // Query builder for inspections
+        $qb = $this->createQueryBuilder('i')
+            ->select('i', 'u')  // Select both inspection and user to avoid N+1
+            ->innerJoin('i.createdByUser', 'u');
+
+        // Apply filters
+        if ($startDate !== null) {
+            $qb->andWhere('i.startDatetime >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate !== null) {
+            // End of the end date (23:59:59)
+            $endOfDay = $endDate->setTime(23, 59, 59);
+            $qb->andWhere('i.startDatetime <= :endDate')
+                ->setParameter('endDate', $endOfDay);
+        }
+
+        if ($createdByUserId !== null) {
+            $qb->andWhere('i.createdByUser = :userId')
+                ->setParameter('userId', $createdByUserId);
+        }
+
+        // Clone query builder for count
+        $countQb = clone $qb;
+        $total = (int) $countQb
+            ->select('COUNT(i.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Apply pagination and ordering
+        $inspections = $qb
+            ->orderBy('i.startDatetime', 'ASC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return [
+            'inspections' => $inspections,
+            'total' => $total
+        ];
+    }
 }

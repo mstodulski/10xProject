@@ -12,9 +12,18 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        api:
+            pattern: ^/api
+            lazy: true
+            provider: user_provider
+            context: shared
+            entry_point: App\Security\ApiAuthenticationEntryPoint
+            custom_authenticator: App\Security\LoginFormAuthenticator
+            user_checker: App\Security\UserChecker
         main:
             lazy: true
             provider: user_provider
+            context: shared
             form_login:
                 login_path: login
                 use_referer: true
@@ -35,6 +44,8 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/inspections$, roles: ROLE_USER, methods: [GET] }
+        - { path: ^/api, roles: ROLE_USER }
         - { path: ^/, roles: [ ROLE_USER, ROLE_ADMIN ] }
 
 when@test:
