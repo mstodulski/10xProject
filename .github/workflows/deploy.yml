@@ -1,0 +1,170 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-24.04
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, json, opcache, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Verify npm version
+        run: npm --version
+
+      - name: Install/Update npm to 10.9
+        run: npm install -g npm@10.9
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --optimize-autoloader
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Create .env file for testing
+        run: |
+          cat > .env << EOF
+          APP_ENV=test
+          APP_SECRET=test_secret_for_ci
+          DATABASE_URL=mysql://root:root_password@127.0.0.1:3306/test_db?serverVersion=8.0
+          EOF
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h 127.0.0.1 -P 3306 --silent; do
+            echo 'Waiting for MySQL...'
+            sleep 2
+          done
+
+      - name: Create database schema
+        run: php bin/console doctrine:schema:create --env=test
+
+      - name: Load fixtures
+        run: php bin/console doctrine:fixtures:load --no-interaction --env=test
+
+      - name: Run PHPUnit tests
+        run: vendor/bin/phpunit
+
+      - name: Create .env file for production
+        run: |
+          cat > .env << EOF
+          APP_ENV=prod
+          APP_SECRET=${{ secrets.APP_SECRET }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          EOF
+
+      - name: Generate FOS JS Routing
+        run: php bin/console fos:js-routing:dump --format=json --target=public/js/fos_js_routes.json --env=prod
+
+      - name: Generate Bazinga JS Translation
+        run: php bin/console bazinga:js-translation:dump public --env=prod
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Install Symfony assets
+        run: php bin/console assets:install public --env=prod
+
+      - name: Clear Symfony cache
+        run: php bin/console cache:clear --env=prod --no-warmup
+
+      - name: Warmup Symfony cache
+        run: php bin/console cache:warmup --env=prod
+
+      - name: Prepare deployment package
+        run: |
+          # Create temporary directory for deployment
+          mkdir -p deploy_temp
+
+          # Copy necessary directories
+          cp -r vendor deploy_temp/
+          cp -r src deploy_temp/
+          cp -r config deploy_temp/
+          cp -r templates deploy_temp/
+          cp -r translations deploy_temp/
+          cp -r bin deploy_temp/
+          cp -r public/build deploy_temp/public/
+          cp -r public/bundles deploy_temp/public/
+          cp -r public/js deploy_temp/public/
+          cp public/index.php deploy_temp/public/
+          cp public/.htaccess deploy_temp/public/
+          cp -r var/cache deploy_temp/var/
+
+          # Copy .env
+          cp .env deploy_temp/
+
+          # Create empty var/log directory (will not be overwritten on server)
+          mkdir -p deploy_temp/var/log
+          touch deploy_temp/var/log/.gitkeep
+
+      - name: Deploy to production via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          protocol: ftp
+          local-dir: ./deploy_temp/
+          server-dir: /
+          exclude: |
+            **/var/log/**
+            **/.git*
+            **/.git*/**
+            **/tests/**
+            **/node_modules/**
+            **/.env.dist
+          dangerous-clean-slate: false
+          log-level: verbose
+
+      - name: Deployment complete
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "📦 Deployed files:"
+          echo "  - PHP dependencies (vendor/)"
+          echo "  - Application source (src/, config/, templates/, translations/)"
+          echo "  - Frontend assets (public/build/, public/bundles/, public/js/)"
+          echo "  - Symfony cache (var/cache/)"
+          echo "  - Environment configuration (.env)"

@@ -1,0 +1,39 @@
+# .gitattributes - Git export optimization
+# Files and directories that should be excluded from git archive/export
+
+# Development files
+/.github export-ignore
+/tests export-ignore
+/.ai export-ignore
+
+# Documentation
+/README.md export-ignore
+/CLAUDE.md export-ignore
+/.github/GITHUB_SECRETS_SETUP.md export-ignore
+
+# Git files
+/.gitignore export-ignore
+/.gitattributes export-ignore
+
+# CI/CD configuration
+/.gitlab-ci.yml export-ignore
+/phpunit.xml.dist export-ignore
+/psalm.xml export-ignore
+
+# Environment examples
+/.env.dist export-ignore
+/.env.test export-ignore
+
+# Node.js
+/package.json export-ignore
+/package-lock.json export-ignore
+/webpack.config.js export-ignore
+/node_modules export-ignore
+
+# Composer dev dependencies info
+/composer.json export-ignore
+/composer.lock export-ignore
+
+# Scripts
+/.scripts export-ignore
+/refresh-demo-data.sh export-ignore
