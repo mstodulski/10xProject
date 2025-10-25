@@ -136,28 +136,32 @@ jobs:
       - name: Prepare deployment package
         run: |
           # Create temporary directory for deployment
-          mkdir -p deploy_temp
+          mkdir -p ${{ github.workspace }}/deploy_temp
 
           # Copy necessary directories
-          cp -r vendor deploy_temp/
-          cp -r src deploy_temp/
-          cp -r config deploy_temp/
-          cp -r templates deploy_temp/
-          cp -r translations deploy_temp/
-          cp -r bin deploy_temp/
-          cp -r public/build deploy_temp/public/
-          cp -r public/bundles deploy_temp/public/
-          cp -r public/js deploy_temp/public/
-          cp public/index.php deploy_temp/public/
-          cp public/.htaccess deploy_temp/public/
-          cp -r var/cache deploy_temp/var/
+          cp -r vendor ${{ github.workspace }}/deploy_temp/
+          cp -r src ${{ github.workspace }}/deploy_temp/
+          cp -r config ${{ github.workspace }}/deploy_temp/
+          cp -r templates ${{ github.workspace }}/deploy_temp/
+          cp -r translations ${{ github.workspace }}/deploy_temp/
+          cp -r bin ${{ github.workspace }}/deploy_temp/
+          mkdir -p ${{ github.workspace }}/deploy_temp/public
+          cp -r public/build ${{ github.workspace }}/deploy_temp/public/
+          cp -r public/bundles ${{ github.workspace }}/deploy_temp/public/
+          cp -r public/js ${{ github.workspace }}/deploy_temp/public/
+          cp public/index.php ${{ github.workspace }}/deploy_temp/public/
+          cp public/.htaccess ${{ github.workspace }}/deploy_temp/public/
+
+          # Copy var/cache
+          mkdir -p ${{ github.workspace }}/deploy_temp/var
+          cp -r var/cache ${{ github.workspace }}/deploy_temp/var/
 
           # Copy .env
-          cp .env deploy_temp/
+          cp .env ${{ github.workspace }}/deploy_temp/
 
           # Create empty var/log directory (will not be overwritten on server)
-          mkdir -p deploy_temp/var/log
-          touch deploy_temp/var/log/.gitkeep
+          mkdir -p ${{ github.workspace }}/deploy_temp/var/log
+          touch ${{ github.workspace }}/deploy_temp/var/log/.gitkeep
 
       - name: Deploy to production via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -167,7 +171,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
           protocol: ftp
-          local-dir: ./deploy_temp/
+          local-dir: ${{ github.workspace }}/deploy_temp/
           server-dir: /
           exclude: |
             **/var/log/**
