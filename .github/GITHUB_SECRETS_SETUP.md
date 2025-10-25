@@ -11,7 +11,7 @@
 
 ### 2. Dodaj wymagane sekrety
 
-Musisz dodać **4 sekrety**. Dla każdego z nich:
+Musisz dodać **5 sekretów**. Dla każdego z nich:
 - Kliknij **New repository secret**
 - Wpisz nazwę (Name)
 - Wpisz wartość (Secret)
@@ -60,7 +60,20 @@ Secret: user_ftp
 
 ---
 
-#### Secret 5: FTP_PASSWORD
+#### Secret 5: DEFAULT_URI
+```
+Name: DEFAULT_URI
+Secret: https://your-production-domain.com
+```
+**Opis**: URL aplikacji używany do generowania linków w komendach CLI (np. w e-mailach, exportach).
+
+⚠️ **UWAGA**: Zamień `https://your-production-domain.com` na prawdziwy URL Twojej produkcyjnej aplikacji!
+- Przykład: `https://inspekcje.twojadomena.pl`
+- Musi zawierać protokół (`https://` lub `http://`)
+
+---
+
+#### Secret 6: FTP_PASSWORD
 ```
 Name: FTP_PASSWORD
 Secret: password_ftp
@@ -76,11 +89,12 @@ Secret: password_ftp
 Po dodaniu wszystkich sekretów powinieneś zobaczyć listę:
 - ✅ APP_SECRET
 - ✅ DATABASE_URL
+- ✅ DEFAULT_URI
 - ✅ FTP_HOST
 - ✅ FTP_USERNAME
 - ✅ FTP_PASSWORD
 
-**5 sekretów w sumie.**
+**6 sekretów w sumie.**
 
 ---
 
