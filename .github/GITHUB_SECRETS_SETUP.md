@@ -11,7 +11,7 @@
 
 ### 2. Dodaj wymagane sekrety
 
-Musisz dodać **5 sekretów**. Dla każdego z nich:
+Musisz dodać **6 sekretów**. Dla każdego z nich:
 - Kliknij **New repository secret**
 - Wpisz nazwę (Name)
 - Wpisz wartość (Secret)
@@ -95,6 +95,13 @@ Po dodaniu wszystkich sekretów powinieneś zobaczyć listę:
 - ✅ FTP_PASSWORD
 
 **6 sekretów w sumie.**
+
+### Zmienne ustawiane automatycznie
+
+Następujące zmienne są **automatycznie konfigurowane** w workflow i nie wymagają dodawania jako sekrety:
+
+- **MESSENGER_TRANSPORT_DSN**: Ustawiony na `doctrine://default` (przechowywanie wiadomości asynchronicznych w bazie danych)
+- **MAILER_DSN**: Ustawiony na `null://null` (nie wysyłamy maili z tego systemu)
 
 ---
 
