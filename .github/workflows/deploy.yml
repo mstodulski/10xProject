@@ -93,12 +93,12 @@ jobs:
       - name: Run PHPUnit tests
         run: vendor/bin/phpunit
 
-      - name: Create .env file for production
+      - name: Create .env file for production build
         run: |
           cat > .env << EOF
           APP_ENV=prod
           APP_SECRET=${{ secrets.APP_SECRET }}
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          DATABASE_URL=mysql://root:root_password@127.0.0.1:3306/test_db?serverVersion=8.0
           DEFAULT_URI=${{ secrets.DEFAULT_URI }}
           MESSENGER_TRANSPORT_DSN=doctrine://default
           MAILER_DSN=null://null
@@ -121,6 +121,17 @@ jobs:
 
       - name: Warmup Symfony cache
         run: php bin/console cache:warmup --env=prod
+
+      - name: Create final .env file for production deployment
+        run: |
+          cat > .env << EOF
+          APP_ENV=prod
+          APP_SECRET=${{ secrets.APP_SECRET }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          DEFAULT_URI=${{ secrets.DEFAULT_URI }}
+          MESSENGER_TRANSPORT_DSN=doctrine://default
+          MAILER_DSN=null://null
+          EOF
 
       - name: Prepare deployment package
         run: |
