@@ -177,8 +177,20 @@ function handleDateSelect(info) {
  * Handle event click (view/edit inspection)
  */
 function handleEventClick(info) {
-    // For now, show alert with event details
     const event = info.event;
-    // TODO: Replace with modal - edit inspection
-    alert(`Szczegóły oględzin:\nTytuł: ${event.title}\nData: ${event.start.toLocaleDateString('pl-PL')}\nGodzina: ${event.start.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}`);
+    const inspectionId = event.id;
+
+    if (!inspectionId) {
+        console.error('Event ID not found');
+        alert('Nie można załadować oględzin - brak ID.');
+        return;
+    }
+
+    // Open edit/view modal with inspection ID
+    if (window.openInspectionEditModal) {
+        window.openInspectionEditModal(inspectionId);
+    } else {
+        console.error('openInspectionEditModal function not found');
+        alert('Wystąpił błąd podczas ładowania oględzin.');
+    }
 }

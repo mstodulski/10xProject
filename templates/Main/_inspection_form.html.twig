@@ -1,14 +1,37 @@
+{% set readonly = isReadonly|default(false) %}
+{% set canDelete = canDelete|default(false) %}
+
+{# Hidden data attributes for JavaScript #}
+<div id="inspectionFormData"
+     data-readonly="{{ readonly ? '1' : '0' }}"
+     data-can-delete="{{ canDelete ? '1' : '0' }}"
+     style="display: none;"></div>
+
+{# Show consultant info if editing/viewing existing inspection #}
+{% if inspection is defined %}
+    <div class="mb-3">
+        <label class="form-label">{{ 'inspection.created_by'|trans }}</label>
+        <input type="text" class="form-control bg-light" value="{{ inspection.createdByUser.name }}" readonly tabindex="-1">
+    </div>
+
+    {% if isPast|default(false) %}
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i> {{ 'inspection.past_inspection_readonly'|trans }}
+        </div>
+    {% endif %}
+{% endif %}
+
 <div class="row">
     <div class="col-md-6">
         {{ form_row(form.startDate, {
             'label': 'inspection.start_date'|trans,
-            'attr': {'class': 'form-control'}
+            'attr': {'class': 'form-control', 'readonly': readonly}
         }) }}
     </div>
     <div class="col-md-6">
         {{ form_row(form.startTime, {
             'label': 'inspection.start_time'|trans,
-            'attr': {'class': 'form-control'}
+            'attr': {'class': 'form-control', 'readonly': readonly}
         }) }}
     </div>
 </div>
@@ -19,7 +42,8 @@
             'label': 'inspection.vehicle_make'|trans,
             'attr': {
                 'class': 'form-control',
-                'placeholder': 'inspection.vehicle_make_placeholder'|trans
+                'placeholder': 'inspection.vehicle_make_placeholder'|trans,
+                'readonly': readonly
             }
         }) }}
     </div>
@@ -28,7 +52,8 @@
             'label': 'inspection.vehicle_model'|trans,
             'attr': {
                 'class': 'form-control',
-                'placeholder': 'inspection.vehicle_model_placeholder'|trans
+                'placeholder': 'inspection.vehicle_model_placeholder'|trans,
+                'readonly': readonly
             }
         }) }}
     </div>
@@ -38,7 +63,8 @@
     'label': 'inspection.license_plate'|trans,
     'attr': {
         'class': 'form-control',
-        'placeholder': 'inspection.license_plate_placeholder'|trans
+        'placeholder': 'inspection.license_plate_placeholder'|trans,
+        'readonly': readonly
     }
 }) }}
 
@@ -46,7 +72,8 @@
     'label': 'inspection.client_name'|trans,
     'attr': {
         'class': 'form-control',
-        'placeholder': 'inspection.client_name_placeholder'|trans
+        'placeholder': 'inspection.client_name_placeholder'|trans,
+        'readonly': readonly
     }
 }) }}
 
@@ -54,7 +81,8 @@
     'label': 'inspection.phone_number'|trans,
     'attr': {
         'class': 'form-control',
-        'placeholder': 'inspection.phone_number_placeholder'|trans
+        'placeholder': 'inspection.phone_number_placeholder'|trans,
+        'readonly': readonly
     }
 }) }}
 

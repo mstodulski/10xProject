@@ -232,4 +232,212 @@ class MainController extends AbstractController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Get inspection for edit/view
+     */
+    #[Route('/inspection/{id}', name: 'inspection_get', methods: ['GET'])]
+    public function getInspectionAction(int $id, InspectionRepository $inspectionRepository): Response
+    {
+        $inspection = $inspectionRepository->find($id);
+
+        if (!$inspection) {
+            return new Response('Oględziny nie zostały znalezione', Response::HTTP_NOT_FOUND);
+        }
+
+        // Determine mode: readonly if past or if user is inspector
+        $user = $this->getUser();
+        $isReadonly = $inspection->isPast() || !$user->isConsultant();
+        $canDelete = !$inspection->isPast() && $user->isConsultant();
+
+        $form = $this->createForm(InspectionType::class, $inspection);
+
+        // Pre-fill startDate and startTime for unmapped fields
+        $form->get('startDate')->setData($inspection->getStartDatetime());
+        $form->get('startTime')->setData($inspection->getStartDatetime());
+
+        return $this->render('Main/_inspection_form.html.twig', [
+            'form' => $form->createView(),
+            'inspection' => $inspection,
+            'isReadonly' => $isReadonly,
+            'isPast' => $inspection->isPast(),
+            'canDelete' => $canDelete,
+        ]);
+    }
+
+    /**
+     * Update inspection
+     */
+    #[Route('/inspection/{id}/update', name: 'inspection_update', methods: ['POST'])]
+    public function updateInspectionAction(
+        int $id,
+        Request $request,
+        InspectionRepository $inspectionRepository,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        TranslatorInterface $translator
+    ): JsonResponse {
+        $inspection = $inspectionRepository->find($id);
+
+        if (!$inspection) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Oględziny nie zostały znalezione'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Check permissions
+        $user = $this->getUser();
+        if (!$user || !$user->isConsultant()) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Nie masz uprawnień do edycji oględzin'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        // Cannot edit past inspections
+        if ($inspection->isPast()) {
+            return $this->json([
+                'success' => false,
+                'message' => $translator->trans('inspection.past_inspection_readonly')
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        $form = $this->createForm(InspectionType::class, $inspection);
+
+        $inspectionData = $request->request->all('inspection');
+        $startDateString = $inspectionData['startDate'] ?? null;
+        $startTimeString = $inspectionData['startTime'] ?? null;
+
+        $form->handleRequest($request);
+
+        if (!$form->isSubmitted()) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Formularz nie został wysłany'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (!$form->isValid()) {
+            $errors = [];
+            foreach ($form->getErrors(true) as $error) {
+                $errors[] = $error->getMessage();
+            }
+
+            return $this->json([
+                'success' => false,
+                'message' => 'Formularz zawiera błędy',
+                'errors' => $errors
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            if (!$startDateString || !$startTimeString) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Data i godzina rozpoczęcia są wymagane',
+                    'errors' => ['Data i godzina rozpoczęcia są wymagane']
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Create DateTimeImmutable from date and time strings
+            $startDatetimeString = $startDateString . ' ' . $startTimeString;
+            $startDatetime = new DateTimeImmutable($startDatetimeString);
+            $inspection->setStartDatetime($startDatetime);
+
+            // Calculate end datetime (30 minutes after start)
+            $endDatetime = $startDatetime->modify('+30 minutes');
+            $inspection->setEndDatetime($endDatetime);
+
+            // Validate the entity
+            $violations = $validator->validate($inspection);
+
+            if (count($violations) > 0) {
+                $errors = [];
+                foreach ($violations as $violation) {
+                    $errors[] = $violation->getMessage();
+                }
+
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Dane oględzin są nieprawidłowe',
+                    'errors' => $errors
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Save to database
+            $entityManager->flush();
+
+            return $this->json([
+                'success' => true,
+                'message' => $translator->trans('inspection.inspection_updated'),
+                'inspection' => [
+                    'id' => $inspection->getId(),
+                    'startDatetime' => $inspection->getStartDatetime()->format('c'),
+                    'endDatetime' => $inspection->getEndDatetime()->format('c'),
+                ]
+            ], Response::HTTP_OK);
+
+        } catch (Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => $translator->trans('inspection.error_updating_inspection'),
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Delete inspection
+     */
+    #[Route('/inspection/{id}/delete', name: 'inspection_delete', methods: ['DELETE', 'POST'])]
+    public function deleteInspectionAction(
+        int $id,
+        InspectionRepository $inspectionRepository,
+        EntityManagerInterface $entityManager,
+        TranslatorInterface $translator
+    ): JsonResponse {
+        $inspection = $inspectionRepository->find($id);
+
+        if (!$inspection) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Oględziny nie zostały znalezione'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Check permissions
+        $user = $this->getUser();
+        if (!$user || !$user->isConsultant()) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Nie masz uprawnień do usuwania oględzin'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        // Cannot delete past inspections
+        if ($inspection->isPast()) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Nie można usunąć oględzin z przeszłości'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $entityManager->remove($inspection);
+            $entityManager->flush();
+
+            return $this->json([
+                'success' => true,
+                'message' => $translator->trans('inspection.inspection_deleted')
+            ], Response::HTTP_OK);
+
+        } catch (Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Wystąpił błąd podczas usuwania oględzin',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

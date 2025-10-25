@@ -57,12 +57,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction --optimize-autoloader
-
-      - name: Install npm dependencies
-        run: npm ci
-
       - name: Create .env file for testing
         run: |
           cat > .env << EOF
@@ -70,6 +64,12 @@ jobs:
           APP_SECRET=test_secret_for_ci
           DATABASE_URL=mysql://root:root_password@127.0.0.1:3306/test_db?serverVersion=8.0
           EOF
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --optimize-autoloader
+
+      - name: Install npm dependencies
+        run: npm ci
 
       - name: Wait for MySQL
         run: |

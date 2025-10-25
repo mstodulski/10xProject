@@ -1,5 +1,5 @@
-{# Modal for creating/editing inspection #}
-<div class="modal fade" id="inspectionModal" tabindex="-1" aria-labelledby="inspectionModalLabel" aria-hidden="true">
+{# Modal for creating/editing/viewing inspection #}
+<div class="modal fade" id="inspectionModal" tabindex="-1" aria-labelledby="inspectionModalLabel" aria-hidden="true" data-inspection-id="" data-mode="create">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -21,8 +21,13 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="deleteInspectionBtn" style="margin-right: auto;">
+                        <i class="bi bi-trash"></i>
+                        <span class="btn-text">{{ 'inspection.delete_inspection'|trans }}</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        {{ 'ui.cancel'|trans }}
+                        {{ 'ui.close'|trans }}
                     </button>
                     <button type="submit" class="btn btn-primary" id="saveInspectionBtn">
                         <span class="btn-text">{{ 'inspection.create_inspection'|trans }}</span>
