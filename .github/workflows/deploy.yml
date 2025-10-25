@@ -162,7 +162,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
-          protocol: ftps
+          protocol: ftp
           protocol-log-level: verbose
           local-dir: ${{ github.workspace }}/deploy_temp/
           server-dir: /
