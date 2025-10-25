@@ -1,0 +1,61 @@
+<div class="row">
+    <div class="col-md-6">
+        {{ form_row(form.startDate, {
+            'label': 'inspection.start_date'|trans,
+            'attr': {'class': 'form-control'}
+        }) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.startTime, {
+            'label': 'inspection.start_time'|trans,
+            'attr': {'class': 'form-control'}
+        }) }}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        {{ form_row(form.vehicleMake, {
+            'label': 'inspection.vehicle_make'|trans,
+            'attr': {
+                'class': 'form-control',
+                'placeholder': 'inspection.vehicle_make_placeholder'|trans
+            }
+        }) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.vehicleModel, {
+            'label': 'inspection.vehicle_model'|trans,
+            'attr': {
+                'class': 'form-control',
+                'placeholder': 'inspection.vehicle_model_placeholder'|trans
+            }
+        }) }}
+    </div>
+</div>
+
+{{ form_row(form.licensePlate, {
+    'label': 'inspection.license_plate'|trans,
+    'attr': {
+        'class': 'form-control',
+        'placeholder': 'inspection.license_plate_placeholder'|trans
+    }
+}) }}
+
+{{ form_row(form.clientName, {
+    'label': 'inspection.client_name'|trans,
+    'attr': {
+        'class': 'form-control',
+        'placeholder': 'inspection.client_name_placeholder'|trans
+    }
+}) }}
+
+{{ form_row(form.phoneNumber, {
+    'label': 'inspection.phone_number'|trans,
+    'attr': {
+        'class': 'form-control',
+        'placeholder': 'inspection.phone_number_placeholder'|trans
+    }
+}) }}
+
+{{ form_rest(form) }}

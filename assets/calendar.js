@@ -122,6 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     calendar.render();
 
+    // Make calendar globally available
+    window.calendar = calendar;
+
     // Auto-refresh every minute (as per PRD requirement)
     setInterval(function() {
         calendar.refetchEvents();
@@ -161,12 +164,13 @@ function handleDateSelect(info) {
         return;
     }
 
-    // For now, show alert
-    const startTime = info.start.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-    const date = info.start.toLocaleDateString('pl-PL');
-
-    // TODO: Replace with modal - new inspection
-    alert(`Tutaj otworzy się formularz tworzenia oględzin\nData: ${date}\nGodzina: ${startTime}`);
+    // Open modal with selected datetime
+    const datetimeString = info.start.toISOString();
+    if (window.openInspectionModal) {
+        window.openInspectionModal(datetimeString);
+    } else {
+        console.error('openInspectionModal function not found');
+    }
 }
 
 /**

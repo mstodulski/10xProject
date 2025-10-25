@@ -1,0 +1,49 @@
+{# Modal for creating/editing inspection #}
+<div class="modal fade" id="inspectionModal" tabindex="-1" aria-labelledby="inspectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inspectionModalLabel">{{ 'inspection.new_inspection'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="inspectionForm" method="post" action="/inspection/create">
+                <div class="modal-body">
+                    <div id="inspectionFormContent">
+                        {# Form will be loaded here via AJAX #}
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Ładowanie...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="inspectionFormErrors" class="alert alert-danger d-none" role="alert">
+                        {# Validation errors will be displayed here #}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        {{ 'ui.cancel'|trans }}
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="saveInspectionBtn">
+                        <span class="btn-text">{{ 'inspection.create_inspection'|trans }}</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# Toast container for notifications #}
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="inspectionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="fas fa-check-circle text-success me-2"></i>
+            <strong class="me-auto">{{ 'ui.inspection_system'|trans }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="inspectionToastBody">
+            {# Toast message will be set by JavaScript #}
+        </div>
+    </div>
+</div>

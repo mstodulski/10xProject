@@ -23,15 +23,15 @@ class Inspection
     private ?int $id = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    #[Assert\NotNull(message: 'inspection.start_datetime.not_null')]
+//    #[Assert\NotNull(message: 'inspection.start_datetime.not_null')]
     #[AppAssert\QuarterHourStart]
     #[AppAssert\NotWeekend]
     #[AppAssert\FutureDate]
     #[AppAssert\MaxTwoWeeksAhead]
-    private DateTimeImmutable $startDatetime;
+    private ?DateTimeImmutable $startDatetime = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private DateTimeImmutable $endDatetime;
+    private ?DateTimeImmutable $endDatetime = null;
 
     #[ORM\Column(type: 'string', length: 64)]
     #[Assert\NotBlank(message: 'inspection.vehicle_make.not_blank')]
@@ -97,7 +97,7 @@ class Inspection
         return $this->id;
     }
 
-    public function getStartDatetime(): DateTimeImmutable
+    public function getStartDatetime(): ?DateTimeImmutable
     {
         return $this->startDatetime;
     }
@@ -108,7 +108,7 @@ class Inspection
         return $this;
     }
 
-    public function getEndDatetime(): DateTimeImmutable
+    public function getEndDatetime(): ?DateTimeImmutable
     {
         return $this->endDatetime;
     }
