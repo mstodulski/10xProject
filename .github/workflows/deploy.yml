@@ -79,6 +79,9 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - name: Create test database
+        run: php bin/console doctrine:database:create --env=test --if-not-exists
+
       - name: Create database schema
         run: php bin/console doctrine:schema:create --env=test
 
