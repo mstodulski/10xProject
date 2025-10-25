@@ -172,6 +172,7 @@ jobs:
             **/.git*/**
             **/tests/**
             **/node_modules/**
+            **/vendor/**
             **/.env.dist
           dangerous-clean-slate: false
           log-level: verbose
