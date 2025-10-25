@@ -152,16 +152,8 @@ jobs:
           cp public/index.php ${{ github.workspace }}/deploy_temp/public/
           cp public/.htaccess ${{ github.workspace }}/deploy_temp/public/
 
-          # Copy var/cache
-          mkdir -p ${{ github.workspace }}/deploy_temp/var
-          cp -r var/cache ${{ github.workspace }}/deploy_temp/var/
-
           # Copy .env
           cp .env ${{ github.workspace }}/deploy_temp/
-
-          # Create empty var/log directory (will not be overwritten on server)
-          mkdir -p ${{ github.workspace }}/deploy_temp/var/log
-          touch ${{ github.workspace }}/deploy_temp/var/log/.gitkeep
 
       - name: Deploy to production via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -174,7 +166,7 @@ jobs:
           local-dir: ${{ github.workspace }}/deploy_temp/
           server-dir: /
           exclude: |
-            **/var/log/**
+            **/var/**
             **/.git*
             **/.git*/**
             **/tests/**

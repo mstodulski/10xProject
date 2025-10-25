@@ -181,10 +181,10 @@ Następujące zmienne są **automatycznie konfigurowane** w workflow i nie wymag
 - Przygotowanie paczki deployment
 - Upload przez FTP na serwer produkcyjny
 - Pliki wykluczone z uploadu:
-  - `var/log/**` (logi nie są nadpisywane!)
-  - `.git/**` (pliki gita)
-  - `tests/**` (testy)
-  - `node_modules/**` (zależności node)
+  - `var/**` - katalog var (cache i logi) nie jest nadpisywany!
+  - `.git/**` - pliki gita
+  - `tests/**` - testy
+  - `node_modules/**` - zależności node
 
 ### Pliki wysłane na serwer:
 - ✅ `vendor/` - zależności PHP
@@ -198,15 +198,17 @@ Następujące zmienne są **automatycznie konfigurowane** w workflow i nie wymag
 - ✅ `public/js/` - routing JS (fos_js_routes.json)
 - ✅ `public/index.php` - entry point
 - ✅ `public/.htaccess` - konfiguracja Apache
-- ✅ `var/cache/` - rozgrzany cache Symfony (prod)
 - ✅ `.env` - plik konfiguracyjny środowiska
+
+### Katalogi NIE wysyłane (zarządzane na serwerze):
+- ❌ `var/` - cache i logi są generowane i zarządzane przez Symfony na serwerze produkcyjnym
 
 ---
 
 ## Troubleshooting - najczęstsze problemy
 
 ### Problem 1: "Secrets not found"
-**Rozwiązanie**: Sprawdź czy wszystkie 5 sekretów zostało poprawnie dodanych w Settings → Secrets and variables → Actions
+**Rozwiązanie**: Sprawdź czy wszystkie 6 sekretów zostało poprawnie dodanych w Settings → Secrets and variables → Actions
 
 ### Problem 2: Testy PHPUnit nie przechodzą
 **Rozwiązanie**:
@@ -230,7 +232,13 @@ Następujące zmienne są **automatycznie konfigurowane** w workflow i nie wymag
 ### Problem 5: Cache Symfony errors
 **Rozwiązanie**:
 - Na serwerze produkcyjnym katalog `var/cache/` może być nieczytelny przez Apache
-- Zaloguj się przez FTP i ustaw uprawnienia `chmod 755` dla `var/cache/`
+- Zaloguj się przez FTP i ustaw uprawnienia `chmod 755` dla `var/cache/` i `var/log/`
+- Jeśli katalog `var/` nie istnieje na serwerze, utwórz go ręcznie:
+  ```
+  mkdir -p var/cache var/log
+  chmod -R 755 var/
+  ```
+- Symfony automatycznie wygeneruje cache przy pierwszym uruchomieniu
 
 ---
 
