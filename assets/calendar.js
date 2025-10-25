@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         // Load events from server
-        events: '/inspections', // TODO: Implement this endpoint
+        events: '/inspections',
 
         // Responsive: change view on window resize
         windowResize: function(view) {
@@ -161,15 +161,11 @@ function handleDateSelect(info) {
         return;
     }
 
-    // Open modal to create inspection
-    // TODO: Implement modal for creating inspection
-    console.log('Create inspection:', info);
-
     // For now, show alert
     const startTime = info.start.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
     const date = info.start.toLocaleDateString('pl-PL');
 
-    // TODO: Replace with modal
+    // TODO: Replace with modal - new inspection
     alert(`Tutaj otworzy się formularz tworzenia oględzin\nData: ${date}\nGodzina: ${startTime}`);
 }
 
@@ -177,11 +173,8 @@ function handleDateSelect(info) {
  * Handle event click (view/edit inspection)
  */
 function handleEventClick(info) {
-    // Open modal to view/edit inspection
-    // TODO: Implement modal for viewing/editing inspection
-    console.log('Event clicked:', info.event);
-
     // For now, show alert with event details
     const event = info.event;
+    // TODO: Replace with modal - edit inspection
     alert(`Szczegóły oględzin:\nTytuł: ${event.title}\nData: ${event.start.toLocaleDateString('pl-PL')}\nGodzina: ${event.start.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}`);
 }

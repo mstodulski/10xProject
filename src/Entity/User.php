@@ -72,9 +72,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setPassword(string $password): self
     {
-
-        //vendor/bin/psalm --alter --issues=MissingOverrideAttribute,PossiblyUnusedMethod,ClassMustBeFinal --dry-run
-
         $this->password = $password;
         return $this;
     }
