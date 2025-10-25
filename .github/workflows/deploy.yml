@@ -177,7 +177,7 @@ jobs:
           log-level: verbose
           timeout: 600000
           concurrency: 1
-          security: loose
+          security: strict
 
       - name: Deployment complete
         run: |
