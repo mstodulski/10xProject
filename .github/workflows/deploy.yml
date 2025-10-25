@@ -162,7 +162,8 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
-          protocol: ftp
+          protocol: ftps
+          protocol-log-level: verbose
           local-dir: ${{ github.workspace }}/deploy_temp/
           server-dir: /
           exclude: |
@@ -174,6 +175,9 @@ jobs:
             **/.env.dist
           dangerous-clean-slate: false
           log-level: verbose
+          timeout: 600000
+          concurrency: 1
+          security: loose
 
       - name: Deployment complete
         run: |

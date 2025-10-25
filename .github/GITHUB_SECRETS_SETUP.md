@@ -217,11 +217,13 @@ Następujące zmienne są **automatycznie konfigurowane** w workflow i nie wymag
 - Napraw testy lokalnie i wypchnij poprawkę
 - Uruchom workflow ponownie
 
-### Problem 3: FTP connection failed
+### Problem 3: FTP connection failed lub "Server sent FIN packet unexpectedly"
 **Rozwiązanie**:
 - Sprawdź czy dane FTP są poprawne (FTP_HOST, FTP_USERNAME, FTP_PASSWORD)
 - Sprawdź czy serwer FTP jest dostępny
 - Sprawdź czy port 21 nie jest zablokowany
+- Workflow używa FTPS (bezpieczniejszy protokół) - jeśli serwer nie obsługuje FTPS, zmień `protocol: ftps` na `protocol: ftp` w pliku deploy.yml
+- Jeśli transfer się obrywa, zwiększ `timeout` lub zmniejsz `concurrency` w konfiguracji FTP-Deploy-Action
 
 ### Problem 4: "npm run build" fails
 **Rozwiązanie**:
